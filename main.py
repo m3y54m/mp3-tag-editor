@@ -13,36 +13,39 @@ for filename in os.listdir(music_dir):
         # checking if it is mp3
         _, file_extension = os.path.splitext(f)
         if file_extension.lower() == ".mp3":
-            audiofile = eyed3.load(f)
-            audiofile_name = os.path.basename(audiofile.path)
-
+            audio_file = eyed3.load(f)
+            audio_file_name = os.path.basename(audio_file.path)
+            # use regex to extract artist and title from file name
             regex_pattern = r"^(?P<artist>[^-]+)\s*-\s*(?P<title>[^-]+)\.[^.]+$"
-            matches = re.search(regex_pattern, audiofile_name)
+            matches = re.search(regex_pattern, audio_file_name)
             if matches:
-                artist = matches.group("artist").strip()
-                title = matches.group("title").strip()
-                # change mp3 tags
-                audiofile.tag.album_artist = artist
-                audiofile.tag.title = title
-                audiofile.tag.artist = artist
-
+                new_artist = matches.group("artist").strip()
+                new_title = matches.group("title").strip()
+                # old mp3 tags
+                old_album_artist = audio_file.tag.album_artist
+                old_title = audio_file.tag.title
+                old_artist = audio_file.tag.artist
+                # new mp3 tags
+                audio_file.tag.album_artist = new_artist
+                audio_file.tag.title = new_title
+                audio_file.tag.artist = new_artist
                 print("===========================================")
                 try:
-                  audiofile.tag.save()
+                  audio_file.tag.save()
                 except:
                   print("*************************************")
                   print("* An error occurred saving MP3 tags *")
                   print("*************************************")
                 else:
-                  print(f"File Name: {audiofile_name}")
+                  print(f"File Name: {audio_file_name}")
                   print("------------------------------------------")
-                  print(f"Old Album Artist: {audiofile.tag.album_artist}")
-                  print(f"Old Title: {audiofile.tag.title}")
-                  print(f"Old Artist: {audiofile.tag.artist}")
-                  # print(f"Old Album: {audiofile.tag.album}")
+                  print(f"Old Album Artist: {old_album_artist}")
+                  print(f"Old Title: {old_title}")
+                  print(f"Old Contributing Artists: {old_artist}")
                   print("------------------------------------------")
-                  print(f"New Album Artist: {artist}")
-                  print(f"New Title: {title}")
+                  print(f"New Album Artist: {audio_file.tag.album_artist}")
+                  print(f"New Title: {audio_file.tag.title}")
+                  print(f"New Contributing Artists: {audio_file.tag.artist}")
             else:
                 print("*************************************")
                 print("*         No matches found          *")
